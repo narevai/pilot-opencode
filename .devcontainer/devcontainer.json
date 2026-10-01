@@ -1,0 +1,33 @@
+{
+  "name": "pilot-opencode",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "none",
+      "pnpmVersion": "latest"
+    }
+  },
+  "remoteUser": "node",
+  "postCreateCommand": "pnpm install && npm install -g opencode-ai",
+  "containerEnv": {
+    "FLIGHTSIM_PILOT_MCP_URL": "http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8002/mcp/v2"
+  },
+  "extraHosts": [
+    "irl-gym-kamil-local.broadbill-pickerel.ts.net:100.110.15.109"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "oxc.oxc-vscode"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "oxc.oxc-vscode",
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.oxc": "always"
+        }
+      }
+    }
+  }
+}

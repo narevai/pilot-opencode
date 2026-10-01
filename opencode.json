@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "flightsim-pilot": {
+      "type": "remote",
+      "url": "http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8002/mcp/v2",
+      "enabled": true
+    }
+  }
+}
