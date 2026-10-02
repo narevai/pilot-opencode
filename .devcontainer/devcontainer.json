@@ -10,10 +10,10 @@
   "remoteUser": "node",
   "postCreateCommand": "pnpm install && npm install -g opencode-ai",
   "containerEnv": {
-    "FLIGHTSIM_PILOT_MCP_URL": "http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8000/mcp"
+    "FLIGHTSIM_PILOT_MCP_URL": "http://irl-gym.broadbill-pickerel.broadbill-pickerel.ts.net:8000/mcp"
   },
   "extraHosts": [
-    "irl-gym-kamil-local.broadbill-pickerel.ts.net:100.116.145.99"
+    "irl-gym.broadbill-pickerel.ts.net:100.91.41.24"
   ],
   "customizations": {
     "vscode": {
