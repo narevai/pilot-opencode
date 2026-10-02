@@ -3,8 +3,17 @@
   "mcp": {
     "flightsim-pilot": {
       "type": "remote",
-      "url": "http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8000/mcp",
+      "url": "http://irl-gym.broadbill-pickerel.ts.net:8000/mcp",
       "enabled": true
+    }
+  },
+  "model": "deepseek/deepseek-v4-pro",
+  "enabled_providers": ["deepseek"],
+  "provider": {
+    "deepseek": {
+      "options": {
+        "apiKey": "{env:DEEPSEEK_API_KEY}"
+      }
     }
   }
 }
