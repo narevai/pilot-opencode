@@ -50,6 +50,7 @@ export class Pilot {
   #output: string[] = [];
   #chunks: Chunk[] = [];
   #sequence: number = 0;
+  #runStart: number = 1;
   #partial: Record<Stream, string> = { stdout: "", stderr: "" };
   readonly #listeners: Set<Listener> = new Set();
 
@@ -76,6 +77,7 @@ export class Pilot {
     this.#harness = harness;
     this.#output = [];
     this.#chunks = [];
+    this.#runStart = this.#sequence + 1;
     this.#partial = { stdout: "", stderr: "" };
     this.#exitCode = null;
     this.#finishedAt = null;
@@ -146,6 +148,10 @@ export class Pilot {
     for (const listener of this.#listeners) {
       listener.end();
     }
+  }
+
+  startsAfter(seq: number): boolean {
+    return seq > 0 && seq < this.#runStart;
   }
 
   chunksAfter(seq: number): Chunk[] {
