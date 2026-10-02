@@ -148,6 +148,10 @@ function stream(request: IncomingMessage, response: ServerResponse): void {
     clearInterval(heartbeat);
     unsubscribe();
   });
+  if (pilot.startsAfter(last)) {
+    last = 0;
+    response.write("event: reset\ndata: {}\n\n");
+  }
   for (const chunk of pilot.chunksAfter(last)) {
     last = chunk.seq;
     response.write(frame(chunk));
