@@ -4,6 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@10.17.1",
   "scripts": {
+    "start": "node src/server.ts",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",

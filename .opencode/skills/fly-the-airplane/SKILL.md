@@ -45,3 +45,21 @@ Call the MCP server configured in `opencode.json`. `flightsim-pilot` is the cock
 - Charts and airport procedures are `flightsim-pilot` documents. `list_documents` with kind `chart` or `sop` and the airport ICAO, then `read_document`.
 - Position is `flight-instruments.latitude` / `longitude`; ground speed is `flight-instruments.ground-speed`.
 - There is no tool to start, restart, or reload the simulation. If the session is wedged or the flight is lost, tell the user.
+
+## Known simulator quirks (learned in flight)
+
+- **`pitch-control` is a held, sensitive setpoint.** On the Zibo 737 one large value (0.6) over-rotated to ~35° within seconds and bled the speed to ~98 kt; the naive correction (-0.25) then drove a -16° dive into the ground. Use small steps (~0.2), read `flight-instruments.pitch` immediately, and hand over to `cmd-a` once above ~400 ft AGL (with LNAV/VNAV armed). A fresh run can retain the previous attempt's control/FMA state, so read and zero `flight-controls.pitch-control` in preflight.
+- **VNAV may not start the descent.** With `NAV DATA OUT OF DATE` on the CDU, VNAV PTH can hold cruise even after a lower MCP altitude. Watch the PROG `TO T/D`; if the aircraft does not descend, take `lvl-chg` (annunciates `MCP SPD`) or `v-s` deliberately and manage drag with `speedbrake-up`.
+- **A radio course may not set.** `set-nav-1-course` / `set-nav-2-course` can be accepted while the reading stays 0; verify the read-back and do not assume APP will track the published course. `nav-1-dme` did not track distance here — prefer the FMC PROG `DTG` and `latitude`/`longitude` for position.
+- **Autoland may not flare.** Even with both CMD lights on, `fma-pitch-armed`/`fma-roll-armed` can stay empty and `fma-pitch` remain `G/S` through 50 ft. If FLARE is not armed by ~350 ft AGL, expect a firm touchdown or go around.
+- **Rollout:** the autopilot disconnects on touchdown (both CMD lights off). Take the rudder immediately. The first `reverse-thrust` may not engage (N1 stayed ~60% and the speed rose); if so set `throttle` 0 and use `brakes`, and reverse only when `reverser-*` actually spools. Without pedal input the aircraft drifts off a narrow runway centreline.
+- **Transient errors:** `get_function_states` and some `read_group` calls intermittently answer `Simulator is unavailable`; retry the same call.
+- **PDF charts may be unreadable** (`read_document` on a chart returns a PDF resource some models cannot read): fall back to the numbers in the relevant skill and confirm with the user.
+
+## Checklist
+
+When the run has a scenario checklist (`read_checklist` returns it), mark each item with `mark_checklist` after you have verified it; see `yssy-yscb` for the details. Do not mark items you did not do.
+
+## Related skills
+
+`takeoff-straight-ahead` for the runway roll, `yssy-yscb` for the Sydney to Canberra route, `landing` for the ILS autoland setup and sequence, and `ils-final-hands-off` for what not to press once LOC and G/S are captured.
