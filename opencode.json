@@ -8,6 +8,16 @@
     }
   },
   "permission": {
-    "doom_loop": "allow"
+    "doom_loop": "allow",
+    "external_directory": {
+      "/etc/*": "allow"
+    }
+  },
+  "provider": {
+    "deepseek": {
+      "options": {
+        "apiKey": "{env:DEEPSEEK_API_KEY}"
+      }
+    }
   }
 }
