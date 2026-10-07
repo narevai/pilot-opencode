@@ -3,8 +3,11 @@
   "mcp": {
     "flightsim-pilot": {
       "type": "remote",
-      "url": "http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8000/mcp",
+      "url": "{env:IRL_GYM_MCP_URL}",
       "enabled": true
     }
+  },
+  "permission": {
+    "doom_loop": "allow"
   }
 }

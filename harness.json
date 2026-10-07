@@ -1,0 +1,4 @@
+{
+  "command": ["opencode", "run", "--model", "{model}", "--title", "{title}", "{prompt}"],
+  "env": ["IRL_GYM_MCP_URL"]
+}

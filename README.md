@@ -1,55 +1,42 @@
 # pilot-opencode
 
-OpenCode skills for flying the simulator through one MCP server: **flightsim-pilot** (cockpit).
+Skills, MCP configuration and prompt for an agent flying the simulator through one MCP server: **flightsim-pilot** (irl-gym `/mcp`).
 
-Port of `pilot-cursor` to OpenCode, with the cockpit side moved to the pilot MCP server of irl-gym (`/mcp`). There is no governor server: starting, restarting, or changing the simulation is up to the user.
+irl-gym starts a Cube sandbox for every run, clones this repo into it and runs the harness from the repo root. There is no service in this repo.
+
+## Layout
+
+```
+harness.json   command (placeholders {model} {title} {prompt}) and required env
+prompt.md      task prompt template
+opencode.json  MCP configuration (URL from IRL_GYM_MCP_URL)
+AGENTS.md      standing instructions for the agent
+.opencode/skills/<skill>/SKILL.md
+```
+
+One repo per agent. Run the harness with the repo root as the working directory. The dev container is for local use only; the sandbox needs just the files above.
+
+## Routes
+
+irl-gym fills the placeholders from the scenario: `{departure}`, `{destination}`, `{departure_name}`, `{destination_name}` and `{route_skill}`. The title is `<departure> to <destination>` and the route skill is `<departure>-<destination>` in lower case (`yssy-yscb`). A new route is a new skill with that name plus a scenario in irl-gym.
 
 ## Skills
 
-Skills live in `.opencode/skills/<name>/SKILL.md` and OpenCode loads them on demand.
-
 | Skill | Use |
 | --- | --- |
-| `fly-the-airplane` | Closed-loop control through the MCP servers |
+| `fly-the-airplane` | Closed-loop control through the MCP server |
 | `takeoff-straight-ahead` | 737-800 runway roll and straight climb |
 | `ils-final-hands-off` | Keep an ILS/autoland stable after LOC and G/S capture |
 | `landing` | Dual-autopilot ILS autoland: setup, checks, flare and rollout, go-around |
 | `yssy-yscb` | Zibo 737-800X from Sydney YSSY to Canberra YSCB |
 
-## MCP servers
+## Try it locally
 
-Configured in `opencode.json`. OpenCode names its tools `<server>_<tool>` (for example `flightsim-pilot_read_group`); the skills use the bare tool names.
+Open the repo in the Dev Container (it sets `IRL_GYM_MCP_URL`), or export it yourself.
 
-| Server | Role | Default URL |
-| --- | --- | --- |
-| `flightsim-pilot` | Cockpit readings and actions (one `cockpit_*` tool per group), documents, checklists | `http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8000/mcp` |
-
-Check the connection with `opencode mcp list`.
-
-The pilot server is irl-gym's MCP (`make dev` in the irl-gym devcontainer, which also runs `tailscale serve` on port 8000). It does not expose the CDU/FMC, the radios or wheel brakes. Checklist progress is stored in the pilot server's own database.
-
-The same server name in `~/.config/opencode/opencode.json` is overridden by this project's `opencode.json`.
-
-## Dev Container
-
-Open the repo in a Dev Container (**Reopen in Container**). The image is Node.js 24 with pnpm, oxlint and oxfmt, and `opencode-ai` is installed after creation. Run `opencode` in the repo root.
-
-The sim MCP host lives on Tailscale (`irl-gym-kamil-local.broadbill-pickerel.ts.net`). The container maps that hostname to the current Tailscale IP. If MCP calls start failing, update `extraHosts` in `.devcontainer/devcontainer.json`.
-
-## Start request
-
-`POST /start` takes a JSON body; `harness` is required and `run_id` is only logged:
-
-```json
-{"harness": "opencode", "run_id": "…"}
+```
+IRL_GYM_MCP_URL=http://irl-gym-kamil-local.broadbill-pickerel.ts.net:8000/mcp \
+  opencode run --model <provider/model> "$(cat prompt.md)"
 ```
 
-The prompt and title are hardcoded in `src/prompt.ts`; the request does not carry them. One pilot runs at a time: a second `POST /start` while one is flying answers 409. `GET /status` reports the running `harness`. The same contract (`POST /start`, `GET /status`, `POST /stop`, `GET /health`) is what irl-gym expects.
-
-## Output stream
-
-`GET /stream` is a Server-Sent Events stream of the pilot's raw output (colors included). It sends `chunk` events (`id` is a sequence number, `data` is `{"stream": "stdout" | "stderr", "data": "…"}`), `reset` when a new run starts and `end` when the process exits. A client that reconnects with `Last-Event-ID` (or `?after=`) resumes where it stopped, and a new client first gets everything printed so far in the current run.
-
-## Harnesses
-
-The service is generic: `src/pilot.ts` runs one child process and `src/server.ts` exposes it over HTTP. Everything specific to an agent lives in one file under `src/harnesses/`. See [`src/harnesses/README.md`](src/harnesses/README.md) for the contract and how to add a new one.
+The pilot server does not expose the CDU/FMC, the radios or wheel brakes, and there is no simulation control: starting, restarting or pausing the simulation is up to irl-gym.
