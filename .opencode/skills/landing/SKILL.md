@@ -50,10 +50,10 @@ On the real PFD **SINGLE CH** disappears and **LAND 3** (or FLARE armed) appears
 
 Do not touch the MCP modes: no `lnav`, `vnav`, `hdg-sel`, `v-s`, `lvl-chg`. Leave the autopilot in `VOR/LOC` + `G/S`. Finish configuring normally:
 
-- Gear down (`gear-down` is a toggle: read the state first) and landing flaps (`flaps-30` or `flaps-40`).
+- Gear down (`gear` with value 2) and landing flaps (`flaps` with value 30 or 40).
 - Speed at VREF plus the appropriate correction (one `set-speed`).
-- `speedbrake-arm`.
-- Autobrake selected (`autobrake-1`, `-2` or `-3`); read `autobrake-position`.
+- `speedbrake` with value 1 (arm).
+- Autobrake selected (`autobrake` with value 2, 3 or 4 for settings 1, 2 or 3); read `autobrake-position`.
 - Autothrottle still engaged (`fma-autothrottle`).
 
 ## Flare and thrust retard (hands off)

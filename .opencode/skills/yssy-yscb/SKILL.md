@@ -11,7 +11,7 @@ Fly the Zibo 737-800X in X-Plane 12 from **Sydney YSSY to Canberra YSCB**, using
 
 **What this server can and cannot do with the FMC**
 
-You can read the CDU display and move around it: `read_group` on `fmc-cdu`, and `cockpit_fmc_cdu` for the page keys (`legs`, `rte`, `init-ref`, `dep-arr`, `prev-page`, `next-page`), the line select keys (`lsk-1l` to `lsk-6r`), `exec`, `clr`, and `del`. There are no letter or digit keys, so you cannot type a route or performance data. The scenario loads a saved flight whose FMC holds the YSSY–YSCB route (departure runway 16R, SID GROOK1 with the WOL transition, then WOL and LEECE on H65, STAR LECE1W to runway 35; the repo file `data/YSSYYSCB01.fms` in irl-gym describes it). Verify it by opening the LEGS page and reading the lines; if the route, the arrival, or the performance data is wrong, tell the user, because you cannot correct it. Clearance (ATC) cannot be verified by any tool: it comes from the user. Weather is readable from `weather` (temperature, dew point, wind, visibility, QNH, cloud base) but there is no ATC: clearances come only from the user.
+You can read the CDU display and move around it: `read_group` on `fmc-cdu`, and `cockpit_fmc_cdu` for the page keys (`legs`, `rte`, `init-ref`, `dep-arr`, `prev-page`, `next-page`), the line select keys (`lsk-1l` to `lsk-6r`), `exec`, `clr`, and `del`. You can also type into the scratchpad with `cdu-type`, but this scenario does not need it. The scenario loads a saved flight whose FMC holds the YSSY–YSCB route (departure runway 16R, SID GROOK1 with the WOL transition, then WOL and LEECE on H65, STAR LECE1W to runway 35; the repo file `data/YSSYYSCB01.fms` in irl-gym describes it). Verify it by opening the LEGS page and reading the lines; if the route, the arrival, or the performance data is wrong, correct it through the CDU (`cdu-type`, line select keys, `exec`) or tell the user if you cannot. Clearance (ATC) cannot be verified by any tool: it comes from the user. Weather is readable from `weather` (temperature, dew point, wind, visibility, QNH, cloud base) but there is no ATC: clearances come only from the user.
 
 **Flight phase (progress tiles on the stream)**
 
@@ -59,7 +59,7 @@ Set both flight directors ON and autothrottle ARM (toggles; read first). Set the
 
 Arm `lnav` when the departure geometry permits, and arm `vnav`. Confirm their armed indications. Use `to-ga-left` for takeoff and control runway tracking and rotation manually (see the `takeoff-straight-ahead` skill for the roll).
 
-At or above **400 feet height AGL**, once stable, trimmed and following flight director guidance, engage `cmd-a`. Verify CMD engagement and the expected lateral and vertical modes. Retract gear after positive climb (`gear-down` toggles the lever) and retract flaps according to the scheduled speeds. Verify climb thrust.
+At or above **400 feet height AGL**, once stable, trimmed and following flight director guidance, engage `cmd-a`. Verify CMD engagement and the expected lateral and vertical modes. Retract gear after positive climb (`gear` with value 0) and retract flaps according to the scheduled speeds. Verify climb thrust.
 
 Manage the MCP altitude throughout the climb to permit the cleared climb while retaining required restrictions. If the aircraft levels at the MCP altitude, selecting a higher altitude may require the appropriate VNAV resumption action. Confirm the resulting mode before continuing.
 
@@ -109,6 +109,6 @@ Issue each mode action once, observe its effect, and decide the next action from
 
 **Route-specific notes (YSSY–YSCB)**
 
-- **The leg is short.** From FL220 you need roughly a 3.5–4° path to be at ~5000 ft by ~10 DME; LVL CHG alone is too shallow. Start the descent early, manage drag (`speedbrake-up`), and be at ~160 kt before the FAF. Do not let speed ride to 250+.
+- **The leg is short.** From FL220 you need roughly a 3.5–4° path to be at ~5000 ft by ~10 DME; LVL CHG alone is too shallow. Start the descent early, manage drag (`speedbrake` value 2), and be at ~160 kt before the FAF. Do not let speed ride to 250+.
 - **Verify the ILS course before trusting APP.** On a flown attempt `set-nav-1-course` / `set-nav-2-course` would not take (reading stayed 0) and `nav-1-dme` did not track distance. Read `nav-1-course` back and confirm it is 348; if it will not set, treat the localizer intercept as suspect and monitor `nav-1-localizer` dots closely. Use the FMC PROG `DTG`, not `nav-1-dme`, for distance. A zero/wrong course biased APP and contributed to a lateral excursion after touchdown.
 - Check whether VNAV actually starts the descent here; a stale CDU (`NAV DATA OUT OF DATE`) held FL220 even with a lower MCP altitude. The generic behaviour is in `fly-the-airplane`.

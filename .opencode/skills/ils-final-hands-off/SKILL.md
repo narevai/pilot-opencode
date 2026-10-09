@@ -49,7 +49,7 @@ If vertical speed goes positive after you were descending on G/S:
 
 ## Allowed final actions only
 
-- Checklist config: `gear-down` (toggle: read the gear state first), flaps to schedule (`cockpit_brakes_flaps_and_gear` `flaps-*`), `eng-1-start-cont` and `eng-2-start-cont`, `speedbrake-arm`
+- Checklist config: `gear` value 2, flaps to schedule (`cockpit_brakes_flaps_and_gear` `flaps`), `cockpit_engine_start` `engine-1-start` and `engine-2-start` with value 2 (CONT), `speedbrake` value 1
 - One speed set (`set-speed`) to target approach speed
 - One MCP missed-approach set (`set-altitude`) **after** G/S is clearly captured and VS is a steady descent
 - One `cmd-b` for dual channel, then hands off
