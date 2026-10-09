@@ -32,7 +32,8 @@ If `get_run` returns no run, tell the user; you cannot start one.
 The run has a checklist for this flight: takeoff, climb and cruise, descent, approach, ILS landing and after landing. The checklist you see with `read_checklist` and `list_checklist_categories` is already that one. The user reads how much of it you marked, so work from it:
 
 - At the start of each phase read its section: `read_checklist` with `category` (`takeoff`, `climb_cruise`, `descent`, `approach`, `landing`, `after_landing`). The first scoped read returns `user_id`, `run_id` and `execution_id`; reuse them.
-- Mark an item with `mark_checklist` (`section`, `item`) only **after** you have done it and confirmed it with a reading or the FMA. Never mark an item you did not verify and never mark a whole section in one go. If an item does not apply or cannot be done, leave it unmarked and say so.
+- Mark an item with `mark_checklist` (`section`, `item`) as soon as you have done it and confirmed it with a reading or the FMA. If you did it before reading the section, read the section and mark it now. Never mark an item you did not do and never mark a whole section in one go. If an item cannot be done, leave it unmarked and say so.
+- Before each `set_run_phase`, read the section of the phase you are leaving and mark everything you did and confirmed.
 - Marks record your acknowledgement, not the simulator state, so keep reading the airplane as usual.
 
 **Before flight**

@@ -28,7 +28,7 @@ Call the MCP server configured in `opencode.json`. `flightsim-pilot` is the cock
 - **Extra readings:** `flight-instruments.elevation-msl` (feet above sea level), `brakes-flaps-and-gear.gear-handle-down`, `mcp-and-autopilot.autopilot-engaged`, and `takeoff-data.takeoff-flaps` (the takeoff flaps entered in the FMC).
 - **Runway and approach:** `read_group` on `runway-and-approach` gives the FMC reference airport and runway (`reference-airport`, `reference-runway-course`, `reference-runway-length` in metres, start and end latitude and longitude), `ils-pointers-shown`, and the HGS flags `on-runway-hgs` and `near-runway-hgs`. For ILS deviation use `radios-and-ils` (`nav-1-localizer`, `nav-1-glideslope`, `nav-1-dme`).
 - **CDU/FMC:** you can read the display (`read_group` on `fmc-cdu`: `line-0-large` ... `line-6-large`, `small`, `label`, `scratchpad`, `execute-light`) and move between pages with `cockpit_fmc_cdu` (`legs`, `rte`, `init-ref`, `n1-lim`, `dep-arr`, `prev-page`, `next-page`, line select keys `lsk-1l` ... `lsk-6r`, `exec`, `clr`, `del`). To enter data, type it with `cdu-type` (letters, digits, space, `.`, `-`, `/`), then press the line select key next to the field and `exec`. Read the scratchpad and the page after each step. The scenario loads a saved flight whose FMC is usually already set up.
-- **Weather and altimeter:** `weather` has temperature, dew point, wind, visibility, QNH (hPa and inHg), cloud base and precipitation at the aircraft. `altimeter` has the current setting and STD; set it with `cockpit_altimeter` `set-altimeter`. Clearance (ATC) is not available from any tool: ask the user.
+- **Weather and altimeter:** `weather` has temperature, dew point, wind, visibility, QNH (hPa and inHg), cloud base and precipitation at the aircraft. `altimeter` has the current setting and STD; set it with `cockpit_altimeter` `set-altimeter`. Clearance (ATC) is not available from any tool: ask the user. The flight plan (route, SID, approach, cruise altitude, performance defaults) is a document: `list_documents` with category `flight` and kind `plan`.
 - **Radios and ILS:** `radios-and-ils` has Nav and Com frequencies, courses, the Nav identifiers, localizer and glideslope deviation, and DME. Tune with `cockpit_radios_and_ils` (`set-nav-1-standby-frequency`, `nav-1-swap`, `set-nav-1-course`).
 - **Takeoff data:** `read_group` on `takeoff-data` gives gross weight, fuel, the FMC CG and the actual CG, takeoff trim (set and calculated) and V1/VR/V2 (set and calculated).
 
@@ -54,7 +54,7 @@ Guarded and irreversible functions are in `fire-and-emergency`. Do not use them 
 
 1. Read the `cockpit_*` tool description for the group you are about to use (it lists the actions and ranges) and `get_function_states` for its current state.
 2. Read the readings that will tell you whether the action worked (`read_group` or `read_reading`).
-3. If a checklist item is open, `mark_checklist` only after the airplane state matches.
+3. If a checklist item is open, `mark_checklist` as soon as the airplane state matches (see Checklist below).
 
 ## 3. Fly
 
@@ -79,9 +79,16 @@ Guarded and irreversible functions are in `fire-and-emergency`. Do not use them 
 - **Transient errors:** `get_function_states` and some `read_group` calls intermittently answer `Simulator is unavailable`; retry the same call.
 - **PDF charts may be unreadable** (`read_document` on a chart returns a PDF resource some models cannot read): fall back to the numbers in the relevant skill and confirm with the user.
 
-## Checklist
+## Checklist (the flight is scored on it)
 
-When the run has a scenario checklist (`read_checklist` returns it), mark each item with `mark_checklist` after you have verified it; see `yssy-yscb` for the details. Do not mark items you did not do.
+The flight is scored on the checklist items you mark with `mark_checklist`, so a done item that is not marked counts as missed.
+
+- Read a phase's section with `read_checklist` (`category`) when the phase starts. The first scoped read returns `user_id`, `run_id` and `execution_id`; reuse them.
+- When you have done an item and seen the confirmation (a reading, `verified: true`, or the FMA), mark it at once with `mark_checklist` (`section`, `item`). Do not wait and do not batch it for later.
+- If you did something before you read its section, read the section and mark what you already did and confirmed.
+- Before every `set_run_phase`, read the section of the phase you are leaving and mark every item you did and confirmed. Leave an item unmarked only if you did not do it or could not confirm it, and say so.
+- Never mark an item you did not do, and never mark a whole section in one go.
+- Marks record your acknowledgement, not the simulator state, so keep reading the airplane as usual.
 
 ## Related skills
 
