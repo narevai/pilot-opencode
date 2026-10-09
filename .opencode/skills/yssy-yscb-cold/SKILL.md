@@ -34,25 +34,36 @@ This is the start-up part of the Sydney to Canberra flight. The airplane is park
 
 ## 4. Set up the FMC
 
-The CDU is empty. Read it first (`read_group` on `fmc-cdu`), then use `cockpit_fmc_cdu`: page keys, line select keys, `exec`, and `cdu-type` for text (letters, digits, space, `.`, `-`, `/`).
+The CDU is empty. Read it first (`read_group` on `fmc-cdu`), then use `cockpit_fmc_cdu`: page keys, line select keys, `exec`, and `cdu-type` for text (letters, digits, space, `.`, `-`, `/`). This sequence was checked on the airplane.
 
-1. Position: `init-ref`, then the position and performance pages as the CDU prompts.
-2. Route: `rte` page. Origin YSSY, destination YSCB, flight number as you like. Departure from runway 16R with the SID GROOK1 and the WOL transition, then WOL and LEECE on H65, and the STAR LECE1W to runway 35 (the route is described in the `yssy-yscb` skill). Use `dep-arr` for the SID and STAR.
-3. After every entry read the scratchpad and the page. Press `exec` only when the light is on and the legs are right. Open `legs` and check the line order against the route above.
-4. Performance and takeoff data: the CDU needs weights, reserves, cruise altitude, and takeoff flaps and speeds. Take the values from the airplane (`takeoff-data`) and the manual (`list_documents`, `read_document`), not from memory. When done, `takeoff-data` must show non-zero V1, VR, V2 and trim.
+- `CLR` deletes **one character** and an error message (`INVALID ENTRY`, `NOT IN DATA BASE`) hides the text you typed but does not remove it. Press `clr` until `scratchpad` is empty before you type again.
+- Check the CDU after every entry. `exec` only when the light is on.
+
+1. **Open the FMC.** On MENU press `lsk-1l` (<FMC), then `lsk-6r` (POS INIT).
+2. **Reference airport.** Type `YSSY`, press `lsk-2l`.
+3. **IRS.** In `cockpit_irs` set `irs-left-mode` and `irs-right-mode` to nav. Back on POS INIT type your present position in the format hemisphere, degrees, minutes with one decimal, for example `S3355.8E15110.3`, and press `lsk-4r` (SET IRS POS). Take the position from the airplane readings; alignment takes minutes.
+4. **Route.** Press `lsk-6r` (ROUTE). Type `YSSY`, `lsk-1l` (ORIGIN), type `YSCB`, `lsk-1r` (DEST), type `16R` (not `RW16R`), `lsk-3l` (RUNWAY).
+5. **Departure.** `dep-arr`, `lsk-1l` (DEP YSSY), choose the SID **GROOK2** (the database has GROOK2, not GROOK1) and the transition **WOL**; runway 16R is already selected.
+6. **Arrival.** `dep-arr`, `lsk-2r` (ARR YSCB). On the approaches select **ILSZ 35**, then go to the page with the STARs and select **LECE1W**.
+7. **Activate.** `rte`, `lsk-6r` (ACTIVATE), `exec`.
+8. **Close the discontinuity.** On `legs` the legs run to WOL, then `ROUTE DISCONTINUITY`, then LECE. Press the line select key next to LECE (it is copied to the scratchpad), then the key next to the `*****` line above it, and `exec`. The legs must then read: ... WOL, LECE, AKLIM, EKASA, SLICK, FOXLO, MOMBI, DAMKO, RW35.
+9. **Performance.** Open `init-ref`, INDEX, PERF. **The FMC works in thousands of pounds, not kilograms** (the fuel on the page, `11.4`, is 5171 kg). Convert from the airplane readings: ZFW = (`takeoff-data.gross-weight` − `takeoff-data.fuel-total`) × 2.2046 / 1000, for example 57 159 kg → `126.0`. Enter ZFW (`lsk-3l`); the gross weight on the page must then match the reading × 2.2046 / 1000 (137.4). Also reserves (`2.0`, `lsk-4l`), cost index (`30`, `lsk-5l`) and cruise altitude (`FL220`, `lsk-1r`), then `exec` if the light is on. Entering kilograms gives INVALID ENTRY.
+10. **Takeoff data.** `init-ref`, INDEX, TAKEOFF. Type the takeoff flaps (`5`, `lsk-1l`) and the CG in % MAC (`lsk-3l`, for example `23.3`; take it from the load sheet, or from `takeoff-data.actual-cg` if you have none). The page then shows suggested V1, VR and V2 and the calculated trim: press `lsk-1r`, `lsk-2r` and `lsk-3r` to accept them. Check `takeoff-data`: `fmc-cg` must agree with `actual-cg`, `v1-set`, `vr-set` and `v2-set` must be non-zero and match the page, and `trim-calculated` is the stabilizer trim to set for takeoff (about 4.8 at this weight). Set the flap lever to the takeoff flaps (`flaps` 5) and the trim with `set-stabilizer-trim` (the value of `trim-calculated`); `flaps-match-fmc` and `trim-matches-fmc` then become true. They are checks, not entries: before you set them they read false.
 
 If the CDU does not accept an entry, read what it says, correct it, and try again. If you cannot complete the setup, say exactly what is missing and stop.
 
 ## 5. Engine start
 
-Follow the manual chapter for the engine start (`list_documents`, kind `manual`) and the checklist section. In short:
+Measured on this airplane, in this order. Read the engine readings after each step (`read_group` on `engines-and-thrust`).
 
-1. Engine start source and bleed ready, parking brake set, fuel levers in cutoff (`cockpit_engine_start`: `fuel-lever-1`, `fuel-lever-2`).
-2. `engine-2-start` to GRD, watch N2 rise, then move `fuel-lever-2` to idle at the right N2 and let the start finish; then the same for engine 1.
-3. After each engine: oil pressure, N1, N2 and EGT stable (read `engines-and-thrust`), start switch back to off or CONT as the checklist says, generators on (`cockpit_electrical` `generator-1` 1, `generator-2` 1) and APU generators off if the manual says so.
+1. APU running and its generators on, `bleed-air-apu` on (`cockpit_hydraulics_and_air`), isolation valve auto, parking brake set, fuel levers in cutoff.
+2. **Turn both packs off** (`left-pack` 0, `right-pack` 0) before the start. With the packs on, the duct pressure stayed near 20 psi and N2 stalled at about 17 percent; with them off it rose above 25 psi and the start went through.
+3. `engine-1-start` to GRD (`cockpit_engine_start`, value 0). Watch `n2-left` rise (about 25 percent takes 10 to 40 seconds, depending on the duct pressure). At 25 percent N2 or more move `fuel-lever-1` to idle (value 1). EGT peaks near 900 °C and then falls; N2 settles near 60 percent and N1 near 19 percent. Then return `engine-1-start` to off (value 1).
+4. Repeat for engine 2 (`engine-2-start`, `fuel-lever-2`).
+5. After both engines run: `generator-1` 1 and `generator-2` 1, then `apu-generator-1` 0 and `apu-generator-2` 0, `bleed-air-apu` 0, packs back to auto (value 1). Read the bus readings.
 
-Do not hurry: if a reading does not move, wait a few seconds and read again before repeating an action.
+Do not hurry: if a reading does not move, wait a few seconds and read again before repeating an action. If N2 stops rising below 25 percent, read the duct pressure first.
 
 ## 6. Before takeoff
 
-Run the before-taxi and before-takeoff items from the checklist: flaps (`cockpit_brakes_flaps_and_gear` `flaps`), trim for takeoff, autobrake RTO (`autobrake` 0), speedbrake armed (`speedbrake` 1), transponder TA/RA (`cockpit_lights_and_transponder` `transponder-mode` 5), lights, and the MCP settings from the `yssy-yscb` skill. Release the parking brake only when the airplane is ready to roll. Then continue with the takeoff and the rest of the flight in `yssy-yscb`.
+Run the before-taxi and before-takeoff items from the checklist: flaps (`cockpit_brakes_flaps_and_gear` `flaps`), trim for takeoff, autobrake RTO (`autobrake` 0), speedbrake armed (`speedbrake` 1), transponder TA/RA (`cockpit_lights_and_transponder` `transponder-mode` 5), lights, and the MCP settings from the `yssy-yscb` skill. Set the flap lever to the takeoff flaps and the stabilizer trim to `trim-calculated` before the roll (`flaps-match-fmc` and `trim-matches-fmc` must be true). Arm the autothrottle once (`a-t-arm-toggle`) and read `autothrottle-armed`; pressing it again switches it off. On the ground `lnav` and `vnav` do not arm: select them after takeoff. Release the parking brake only when the airplane is ready to roll. Then continue with the takeoff and the rest of the flight in `yssy-yscb`.

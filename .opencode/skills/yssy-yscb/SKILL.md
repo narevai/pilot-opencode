@@ -39,7 +39,7 @@ The run has a checklist for this flight: takeoff, climb and cruise, descent, app
 
 Inspect the aircraft with `get_status`, and `read_group` for each group. Obtain the current Sydney departure and Canberra arrival charts: `list_documents` with kind `chart` and the airport ICAO, then `read_document`.
 
-Verify the weight-dependent data: read `takeoff-data` (`gross-weight`, `fuel-total`, `trim-set`, `trim-calculated`, `v1-set`, `vr-set`, `v2-set`) and `v-speeds.v1`, `vr`, `v2`; they must be non-zero and calculated for this weight. Then `mcp-and-autopilot.selected-altitude` must make sense, and after arming LNAV and VNAV the FMA (`fma-roll-armed`, `fma-pitch-armed`) must show them armed. Do not reuse fuel quantity, cruise altitude, or takeoff speeds from a previous flight without checking them with the user.
+Verify the weight-dependent data: read `takeoff-data` (`gross-weight`, `fuel-total`, `trim-calculated`, `v1-set`, `vr-set`, `v2-set`) and `v-speeds.v1`, `vr`, `v2`; they must be non-zero and calculated for this weight. Then `mcp-and-autopilot.selected-altitude` must make sense, and after arming LNAV and VNAV the FMA (`fma-roll-armed`, `fma-pitch-armed`) must show them armed. Do not reuse fuel quantity, cruise altitude, or takeoff speeds from a previous flight without checking them with the user.
 
 Choose a Canberra ILS runway compatible with the weather, the available procedures, and the aircraft autoland capability. Obtain its frequency, identifier, magnetic course, intercept altitude, minima, and missed approach procedure from the chart. Do not invent these values.
 
